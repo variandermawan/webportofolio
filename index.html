@@ -23,6 +23,7 @@
         if (saved === "light" || saved === "dark") theme = saved;
       } catch (e) {}
       document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.classList.add("js");
     })();
   </script>
 
@@ -70,6 +71,7 @@
       line-height: 1.65;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      overflow-x: hidden;
     }
 
     img { max-width: 100%; }
@@ -91,7 +93,20 @@
     .icon { width: 18px; height: 18px; flex: none; }
 
     /* =========================================================
-       2. HEADER & NAVIGATION
+       2. LOADER OVERLAY
+       ========================================================= */
+    .loader {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--fg); color: var(--bg);
+      display: grid; place-items: center;
+      transition: transform .8s cubic-bezier(.76, 0, .24, 1);
+    }
+    .loader span { font-size: clamp(1.4rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: -.03em; }
+    .loader.done { transform: translateY(-100%); }
+    .loader.gone { display: none; }
+
+    /* =========================================================
+       3. HEADER & NAVIGATION
        ========================================================= */
     .site-header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -161,7 +176,7 @@
     }
 
     /* =========================================================
-       3. BUTTONS
+       4. BUTTONS
        ========================================================= */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
@@ -177,7 +192,7 @@
     .btn-ghost:hover { background: var(--fg); color: var(--bg); }
 
     /* =========================================================
-       4. HERO & PROFILE PHOTO
+       5. HERO & PROFILE PHOTO
        ========================================================= */
     .hero {
       padding: calc(var(--header-h) + clamp(2.5rem, 7vw, 5rem)) 0 clamp(3rem, 7vw, 5rem);
@@ -241,7 +256,7 @@
     @keyframes blink { 50% { opacity: 0; } }
 
     /* =========================================================
-       5. GENERAL SECTIONS
+       6. GENERAL SECTIONS
        ========================================================= */
     .section {
       padding: clamp(3rem, 7vw, 5.5rem) 0;
@@ -266,7 +281,7 @@
     .card:hover, .card:focus-within { border-color: var(--fg); }
 
     /* =========================================================
-       6. ABOUT & FACTS LIST
+       7. ABOUT & FACTS LIST
        ========================================================= */
     .about-grid { display: grid; gap: 2rem; }
     @media (min-width: 1025px) {
@@ -282,7 +297,7 @@
     .facts dd { margin: 0; font-weight: 600; text-align: right; word-break: break-word; }
 
     /* =========================================================
-       7. SKILLS
+       8. SKILLS
        ========================================================= */
     .skills-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
     @media (min-width: 640px)  { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -293,7 +308,7 @@
     .skill li { color: var(--muted); font-size: .92rem; line-height: 1.5; }
 
     /* =========================================================
-       8. PROJECTS
+       9. PROJECTS
        ========================================================= */
     .projects-grid {
       display: grid; gap: 1rem;
@@ -330,7 +345,7 @@
     }
 
     /* =========================================================
-       9. CERTIFICATIONS & TIMELINE LIST
+       10. CERTIFICATIONS & TIMELINE LIST
        ========================================================= */
     .cert-list { 
       list-style: none; 
@@ -360,8 +375,19 @@
     .cert-meta, .cert-year { margin: 0; color: var(--muted); font-size: .92rem; }
     .cert-desc { margin-top: .5rem; margin-bottom: 0; color: var(--muted); font-size: .92rem; }
 
+    .link-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+    }
+    .link-arrow .arr {
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+    }
+
     /* =========================================================
-       10. CONTACT & FOOTER
+       11. CONTACT & FOOTER
        ========================================================= */
     .contact-grid { display: grid; gap: 2rem; }
     @media (min-width: 1025px) {
@@ -387,10 +413,27 @@
       padding: 1.5rem 0;
       color: var(--muted); font-size: .875rem;
     }
-    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; }
-    .footer-inner a { text-decoration: none; }
-    .footer-inner a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 4px; }
+    .footer-inner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
+    /* =========================================================
+       12. ANIMASI FADE IN SCROLL (Termasuk Garis Pemisah Seksi)
+       ========================================================= */
+    @media(prefers-reduced-motion: no-preference) {
+      .js .rv {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity .7s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s), transform .7s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s);
+      }
+      .js .rv.in {
+        opacity: 1;
+        transform: none;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -399,6 +442,11 @@
 </head>
 
 <body>
+  <!-- LOADER OVERLAY -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <span>Varian Dermawan</span>
+  </div>
+
   <a class="skip" href="#about">Skip to content</a>
 
   <header class="site-header">
@@ -447,13 +495,13 @@
           </div>
           
           <p class="hero-tagline">
-  Fresh graduate with technical training and passed competency assessments (certificates in progress), ready to deliver optimal performance and continuously grow in Networking.
+            Fresh graduate with technical training and passed competency assessments (certificates in progress), ready to deliver optimal performance and continuously grow in Networking.
           </p>
           <div class="hero-cta">
             <a class="btn btn-primary" id="btn-cv" href="https://drive.google.com/file/d/1IfLzEzdRVDrl6pr-HATB02heeRaRAV6i/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">
-  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
-  Download CV
-</a>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+              Download CV
+            </a>
 
             <a class="btn btn-ghost" href="#contact">Contact Me</a>
           </div>
@@ -537,7 +585,7 @@
               <h3>Administrative Support Staff</h3>
               <p class="cert-meta">
                 STIKOM CKI &bull; 
-                <a href="https://drive.google.com/file/d/1I5bEfeboLewwfnxtEeD4cpi-a69YqN94/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View Internship Certificate &rarr;</a>
+                <a class="link-arrow" href="https://drive.google.com/file/d/1I5bEfeboLewwfnxtEeD4cpi-a69YqN94/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View Internship Certificate <span class="arr">&rarr;</span></a>
               </p>
               <p class="cert-desc">Responsible for data entry and processing, managing administrative documents, preparing reports, and assisting with PC maintenance in the computer lab.</p>
             </div>
@@ -677,7 +725,7 @@
               <h3>Network Technician Training</h3>
               <p class="cert-meta">
                 Pusat Pelatihan Kerja Daerah (PPKD) Central Jakarta &bull; 
-                <a href="https://drive.google.com/file/d/1aiJhbBcC113JvZbU7UEWDnkpUZIJLB3O/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View PPKD Certificate &rarr;</a>
+                <a class="link-arrow" href="https://drive.google.com/file/d/1aiJhbBcC113JvZbU7UEWDnkpUZIJLB3O/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View PPKD Certificate <span class="arr">&rarr;</span></a>
               </p>
               <p class="cert-desc">Completed 360 hours of intensive competency-based training in Network Technology. Practiced LAN topology design, Cisco router/switch configuration, MikroTik routers, VLAN, static/dynamic routing, and network troubleshooting.</p>
             </div>
@@ -689,7 +737,7 @@
               <h3>Computer and Network Engineering Training</h3>
               <p class="cert-meta">
                 Pusat Pelatihan dan Pengembangan Pendidikan (P4) East Jakarta &bull; 
-                <a href="https://drive.google.com/file/d/1IspdH0fLK86N3B6Sg0Zic1AavXXLN2CU/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View P4 Certificate &rarr;</a>
+                <a class="link-arrow" href="https://drive.google.com/file/d/1IspdH0fLK86N3B6Sg0Zic1AavXXLN2CU/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View P4 Certificate <span class="arr">&rarr;</span></a>
               </p>
               <p class="cert-desc">Completed 40 hours of training to enhance competencies in Computer and Network Engineering, covering introduction to networking, switch configuration, wireless network installation, and basic routing.</p>
             </div>
@@ -713,7 +761,7 @@
               <h3>Network Technician Competency Certificate (BNSP)</h3>
               <p class="cert-meta">
                 LSP Media Informatika &bull; 
-                <a href="https://drive.google.com/file/d/1DPbMBr_0auEOVQr6z4qkwK9buOosrA_G/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View Assessment Result (Competent) &rarr;</a>
+                <a class="link-arrow" href="https://drive.google.com/file/d/1DPbMBr_0auEOVQr6z4qkwK9buOosrA_G/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View Assessment Result (Competent) <span class="arr">&rarr;</span></a>
               </p>
               <p class="cert-desc">Declared COMPETENT in BNSP standardized assessment via PPKD Central Jakarta. (Certificate issuance in progress).</p>
             </div>
@@ -746,7 +794,7 @@
               <h3>Student Council Officer - Student Creativity Division</h3>
               <p class="cert-meta">
                 OSIS SMK Teratai Putih Jakarta &bull; 
-                <a href="https://drive.google.com/file/d/10yCsRZf5a8klS_VR-0OcCkIfso2wqIXh/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View OSIS Certificate &rarr;</a>
+                <a class="link-arrow" href="https://drive.google.com/file/d/10yCsRZf5a8klS_VR-0OcCkIfso2wqIXh/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">View OSIS Certificate <span class="arr">&rarr;</span></a>
               </p>
               <p class="cert-desc">Designed visual promotional materials for school events, managed student council social media, and collaborated with committees for event publication needs.</p>
             </div>
@@ -800,7 +848,6 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <span>&copy; <span id="year">2026</span> Varian Dermawan. All rights reserved.</span>
-      <a href="#home">Back to top</a>
     </div>
   </footer>
 
@@ -811,6 +858,53 @@
       var root = document.documentElement;
       var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+      /* 1. Loader Screen & Scroll Fade-In Animation */
+      var ld = document.getElementById("loader");
+      
+      // Pilih seluruh elemen seksi (.section) agar garis pemisah (border-top) ikut fade in
+      var rv = document.querySelectorAll(".hero-profile, .hero-tagline, .hero-cta, .term, .section, .card, .cert, .contact-list");
+      
+      rv.forEach(function (el) {
+        var p = el.parentNode; p._n = p._n || 0;
+        el.classList.add("rv");
+        el.style.setProperty("--d", Math.min(p._n++, 5) * .08 + "s");
+      });
+
+      var shown = false;
+      function reveal() {
+        if (shown) return; shown = true;
+        if (!("IntersectionObserver" in window)) {
+          rv.forEach(function (el) { el.classList.add("in"); });
+          return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in");
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.08, rootMargin: "0px 0px -4% 0px" });
+
+        rv.forEach(function (el) { io.observe(el); });
+      }
+
+      function hideLoader() {
+        if (ld.classList.contains("done")) return;
+        ld.classList.add("done");
+        setTimeout(function () { ld.classList.add("gone"); }, 800);
+        setTimeout(reveal, 250);
+      }
+
+      if (reduceMotion.matches) {
+        ld.classList.add("gone");
+        reveal();
+      } else {
+        window.addEventListener("load", function () { setTimeout(hideLoader, 500); });
+        setTimeout(hideLoader, 2000);
+      }
+
+      /* 2. Theme Toggle */
       var themeBtn = document.getElementById("theme-toggle");
       var themeMeta = document.querySelector('meta[name="theme-color"]');
 
@@ -827,6 +921,7 @@
         try { localStorage.setItem("theme", next); } catch (e) {}
       });
 
+      /* 3. Mobile Navigation Menu */
       var menuBtn = document.getElementById("menu-toggle");
       var nav = document.getElementById("site-nav");
 
@@ -846,6 +941,7 @@
         if (!nav.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
       });
 
+      /* 4. Smooth Anchor Scrolling */
       var anchors = document.querySelectorAll('a[href^="#"]');
       for (var i = 0; i < anchors.length; i++) {
         anchors[i].addEventListener("click", function (e) {
@@ -863,6 +959,7 @@
         });
       }
 
+      /* 5. Nav Link Intersection Observer */
       var navLinks = {};
       var links = document.querySelectorAll(".nav-list a");
       for (var j = 0; j < links.length; j++) {
